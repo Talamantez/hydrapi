@@ -1,8 +1,8 @@
 # hydrapi
-multiheaded hydrator
+multiheaded hydrator in railway-fastapi
 
 # Directory structure:
-# railway-fastapi/
+# hydrapi/
 # ├── requirements.txt
 # ├── main.py
 # ├── Procfile
@@ -96,3 +96,28 @@ __pycache__/
 env/
 venv/
 ENV/
+
+
+# Init
+git init
+git add .
+git commit -m "Initial commit"
+
+# Deploy to Railway:
+
+Create a new Railway project
+Connect your GitHub repository
+Railway will automatically detect the Python app and deploy it
+
+Set your environment variables in Railway:
+
+Add API_KEY with your chosen key
+
+# Health check
+curl https://your-app-url/health
+
+# Detect architecture
+curl -X POST https://your-app-url/detect \
+  -H "Content-Type: application/json" \
+  -H "api-key: your-api-key" \
+  -d '{"files": ["next.config.js"], "directories": ["pages"], "config_files": {}}'

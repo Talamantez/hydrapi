@@ -7,7 +7,7 @@ import os
 app = FastAPI(title="Architecture Pattern Detector")
 
 # Basic API key auth - in production, use more secure methods
-API_KEY = os.getenv("API_KEY", "your-default-api-key")
+API_KEY = os.getenv("API_KEY", "test-key-123")  # Default key for testing
 
 class ArchitectureRequest(BaseModel):
     files: List[str]
