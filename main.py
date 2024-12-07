@@ -1,20 +1,3 @@
-# hydrapi
-multiheaded hydrator
-
-# Directory structure:
-# railway-fastapi/
-# ├── requirements.txt
-# ├── main.py
-# ├── Procfile
-# ├── runtime.txt
-# └── .gitignore
-
-# requirements.txt
-fastapi==0.103.1
-uvicorn==0.23.2
-python-multipart==0.0.6
-pydantic==2.3.0
-
 # main.py
 from fastapi import FastAPI, HTTPException, Header
 from pydantic import BaseModel
@@ -80,19 +63,3 @@ async def detect_architecture(request: ArchitectureRequest, api_key: str = Heade
         markers=request.files[:5],  # First 5 files as example markers
         warnings=["Could not confidently detect framework"]
     )
-
-# Procfile
-web: uvicorn main:app --host 0.0.0.0 --port $PORT
-
-# runtime.txt
-python-3.9.16
-
-# .gitignore
-__pycache__/
-*.py[cod]
-*$py.class
-.env
-.venv
-env/
-venv/
-ENV/
