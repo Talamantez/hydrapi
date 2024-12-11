@@ -1,13 +1,10 @@
-# main.py
-from fastapi import FastAPI, HTTPException, Header
+# app/routes.py
+from fastapi import APIRouter, Header, HTTPException
 from pydantic import BaseModel
 from typing import Dict, List, Optional
-import os
+from app.core.config import settings
 
-app = FastAPI(title="Architecture Pattern Detector")
-
-# Basic API key auth - in production, use more secure methods
-API_KEY = os.getenv("API_KEY", "test-key-123")  # Default key for testing
+router = APIRouter()
 
 class ArchitectureRequest(BaseModel):
     files: List[str]
@@ -20,26 +17,14 @@ class ArchitectureResponse(BaseModel):
     markers: List[str]
     warnings: Optional[List[str]] = None
 
-def verify_api_key(api_key: str = Header(...)):
-    if api_key != API_KEY:
-        raise HTTPException(status_code=401, detail="Invalid API key")
-    return api_key
-
-@app.get("/")
+@router.get("/")
 async def root():
     return {"message": "Architecture Pattern Detector API", "status": "running"}
 
-@app.get("/health")
-async def health_check():
-    return {"status": "healthy"}
-
-@app.post("/detect", response_model=ArchitectureResponse)
+@router.post("/detect", response_model=ArchitectureResponse)
 async def detect_architecture(request: ArchitectureRequest, api_key: str = Header(...)):
-    verify_api_key(api_key)
-    
-    # Simple demo detection logic
-    # In reality, you'd have more sophisticated pattern matching
-    markers = []
+    if api_key != settings.API_KEY:
+        raise HTTPException(status_code=401, detail="Invalid API key")
     
     if "next.config.js" in request.files:
         return ArchitectureResponse(
@@ -49,17 +34,11 @@ async def detect_architecture(request: ArchitectureRequest, api_key: str = Heade
             warnings=["Multiple routing systems detected"] if "react-router" in str(request.config_files) else None
         )
     
-    if "angular.json" in request.files:
-        return ArchitectureResponse(
-            detected_framework="Angular",
-            confidence=0.85,
-            markers=["angular.json", "src/app directory"],
-            warnings=None
-        )
+    # Add other framework detection logic here
     
     return ArchitectureResponse(
         detected_framework="Unknown",
         confidence=0.1,
-        markers=request.files[:5],  # First 5 files as example markers
+        markers=request.files[:5],
         warnings=["Could not confidently detect framework"]
     )

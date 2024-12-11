@@ -1,9 +1,17 @@
-# .gitignore
 __pycache__/
 *.py[cod]
 *$py.class
+.pytest_cache/
+
+# Environment
 .env
 .venv
 env/
 venv/
-ENV/
+
+# IDE
+.vscode/
+.idea/
+
+# Docker
+.docker/
