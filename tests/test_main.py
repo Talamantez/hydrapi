@@ -5,6 +5,8 @@ from fastapi.testclient import TestClient
 from app.main import app
 from app.core.config import settings
 import requests
+from dotenv import load_dotenv
+load_dotenv(".env.test")
 
 # Environment variables for deployed testing
 DEPLOY_URL = os.getenv("DEPLOY_URL")
