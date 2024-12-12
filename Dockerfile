@@ -6,4 +6,4 @@ COPY . .
 RUN useradd -m myuser
 USER myuser
 SHELL ["/bin/bash", "-c"]
-CMD uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}
+CMD env && echo "PORT is: $PORT" && uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}
