@@ -1,6 +1,11 @@
 services:
-  test:
+  web:
     build: .
-    command: pytest -v
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+      - API_KEY=29vfjjv9vj9d9324j914a3y2
+      - ENV=development
     volumes:
       - .:/app
