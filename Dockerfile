@@ -6,4 +6,5 @@ COPY . .
 RUN useradd -m myuser
 RUN chmod +x /app/start.sh
 USER myuser
-CMD ["/bin/bash", "/app/start.sh"]
+ENTRYPOINT ["/bin/bash"]
+CMD ["/app/start.sh"]
