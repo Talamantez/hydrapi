@@ -79,6 +79,84 @@ def test_local_invalid_api_key(local_client):
     )
     assert response.status_code == 401
 
+def test_local_detect_unknown_framework(local_client):
+    """Test detection of unknown framework when no recognizable patterns exist"""
+    payload = {
+        "files": ["custom.config.js", "app.js"],
+        "directories": ["src", "components"],
+        "config_files": {}
+    }
+    response = local_client.post(
+        "/detect",
+        json=payload,
+        headers={"api-key": settings.API_KEY}
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["detected_framework"] == "Unknown"
+    assert data["confidence"] == 0.1
+    assert len(data["markers"]) <= 5
+    assert "Could not confidently detect framework" in data["warnings"]
+
+def test_local_detect_angular(local_client):
+    """Test detection of Angular framework"""
+    payload = {
+        "files": ["angular.json", "tsconfig.json"],
+        "directories": ["src/app"],
+        "config_files": {
+            "angular.json": '{"projects": {"my-app": {"architect": {}}}}'
+        }
+    }
+    response = local_client.post(
+        "/detect",
+        json=payload,
+        headers={"api-key": settings.API_KEY}
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["detected_framework"] == "Angular"
+    assert data["confidence"] == 0.85
+    assert "angular.json" in data["markers"]
+    assert "src/app directory" in data["markers"]
+    assert data["warnings"] is None
+
+def test_local_nextjs_multiple_routing(local_client):
+    """Test Next.js detection with react-router warning"""
+    payload = {
+        "files": ["next.config.js"],
+        "directories": ["pages"],
+        "config_files": {
+            "package.json": '{"dependencies": {"react-router-dom": "^6.0.0"}}'
+        }
+    }
+    response = local_client.post(
+        "/detect",
+        json=payload,
+        headers={"api-key": settings.API_KEY}
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["detected_framework"] == "Next.js"
+    assert "Multiple routing systems detected" in data["warnings"]
+
+def test_local_empty_request(local_client):
+    """Test handling of empty request"""
+    payload = {
+        "files": [],
+        "directories": [],
+        "config_files": {}
+    }
+    response = local_client.post(
+        "/detect",
+        json=payload,
+        headers={"api-key": settings.API_KEY}
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["detected_framework"] == "Unknown"
+    assert data["confidence"] == 0.1
+    assert len(data["markers"]) == 0
+
 # Deployment Tests
 @pytest.mark.skipif(not DEPLOY_URL, reason="Deployment URL not configured")
 def test_deploy_health_check(deploy_client):
@@ -136,3 +214,21 @@ def test_health_check_both_envs(env, local_client, deploy_client):
     response = client.get("/health")
     assert response.status_code == 200
     assert response.json() == {"status": "healthy"}
+    
+@pytest.mark.skipif(not DEPLOY_URL, reason="Deployment URL not configured")
+def test_deploy_detect_angular(deploy_client):
+    """Test Angular detection in deployed environment"""
+    payload = {
+        "files": ["angular.json"],
+        "directories": ["src/app"],
+        "config_files": {}
+    }
+    response = deploy_client.post(
+        "/detect",
+        json=payload,
+        headers={"api-key": DEPLOY_API_KEY}
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["detected_framework"] == "Angular"
+    assert data["confidence"] == 0.85

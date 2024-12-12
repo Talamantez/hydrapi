@@ -34,6 +34,14 @@ async def detect_architecture(request: ArchitectureRequest, api_key: str = Heade
             warnings=["Multiple routing systems detected"] if "react-router" in str(request.config_files) else None
         )
     
+    if "angular.json" in request.files:
+        return ArchitectureResponse(
+            detected_framework="Angular",
+            confidence=0.85,
+            markers=["angular.json", "src/app directory"],
+            warnings=None
+        )
+        
     # Add other framework detection logic here
     
     return ArchitectureResponse(
