@@ -4,7 +4,6 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 RUN useradd -m myuser
-RUN chmod +x /app/start.sh
 USER myuser
-ENTRYPOINT ["/bin/bash"]
-CMD ["/app/start.sh"]
+SHELL ["/bin/bash", "-c"]
+CMD uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}
